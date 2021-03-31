@@ -825,6 +825,11 @@ fn transfer(
     recipients: Vec<String>,
     name: Option<String>,
 ) -> Result<(), SnedError> {
+    if recipients.len() == 0 {
+        println!("Expected at least one recipient as an argument");
+        return Ok(());
+    }
+
     let file = std::fs::File::open(&file_path)
         .map_err(|_| SnedError::FileOpenError(file_path.to_string_lossy().to_string()))?;
     let secret_key = read_secret_key()?;
