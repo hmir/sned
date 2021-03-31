@@ -479,6 +479,18 @@ fn read_secret_key() -> Result<box_::SecretKey, SnedError> {
     }
 }
 
+fn read_public_key() -> Result<box_::PublicKey, SnedError> {
+    let server = get_cur_server()?;
+    let key_bytes = fs::read(get_server_path(PUBLIC_KEY_PATH)?)
+        .map_err(|_| SnedError::FileReadError(Some(server)))?;
+
+    if let Some(parsed_key) = box_::PublicKey::from_slice(&key_bytes) {
+        Ok(parsed_key)
+    } else {
+        Err(SnedError::AsymmetricKeyParseError)
+    }
+}
+
 fn read_signing_secret_key() -> Result<sign::SecretKey, SnedError> {
     let server = get_cur_server()?;
     let key_bytes = fs::read(get_server_path(SIGNING_SECRET_KEY_PATH)?)
@@ -497,6 +509,7 @@ fn whoami() -> Result<(), SnedError> {
         read_username()?,
         get_cur_server()?
     );
+    println!("Your public key is: {}", base64_encode(&read_public_key()?));
     Ok(())
 }
 
